@@ -1,3 +1,4 @@
+![Banner](https://i.hizliresim.com/jv6ah3o.jpg)
 # MHRS Otomatik Randevu
 MHRS kullanıcı bilgileriniz ile giriş yaptıktan sonra İl-İlçe-Klinik-Doktor gibi filtrelemeler yaparak aradığınız randevunun müsaitlik durumunu anlık olarak takip edebilir veya randevuyu otomatik olarak alabilirsiniz.
 
