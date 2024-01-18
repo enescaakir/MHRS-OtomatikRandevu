@@ -16,7 +16,7 @@ namespace MHRS_OtomatikRandevu.Services
 
         public NotificationService()
         {
-            if(string.IsNullOrEmpty(TWILIO_ACCOUNT_SID) || string.IsNullOrEmpty(TWILIO_AUTH_TOKEN) || string.IsNullOrEmpty(TWILIO_PHONE_NUMBER) || string.IsNullOrEmpty(PHONE_NUMBER))
+            if(!HasConfig())
             {
                 TWILIO_ACCOUNT_SID = ConfigurationManager.AppSettings.Get(nameof(TWILIO_ACCOUNT_SID));
                 TWILIO_AUTH_TOKEN = ConfigurationManager.AppSettings.Get(nameof(TWILIO_AUTH_TOKEN));
@@ -24,14 +24,19 @@ namespace MHRS_OtomatikRandevu.Services
                 PHONE_NUMBER = ConfigurationManager.AppSettings.Get(nameof(PHONE_NUMBER));
             }
 
-            if (string.IsNullOrEmpty(TWILIO_ACCOUNT_SID) || string.IsNullOrEmpty(TWILIO_AUTH_TOKEN) ||
-                string.IsNullOrEmpty(TWILIO_PHONE_NUMBER) || string.IsNullOrEmpty(PHONE_NUMBER))
+            if (!HasConfig())
             {
                 ConsoleUtil.WriteText("Lütfen config dosyasındaki değerleri doldurun ve tekrar başlatın.", 2000);
-                return;
             }
             
             TwilioClient.Init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+        }
+
+        private bool HasConfig()
+        {
+            return string.IsNullOrEmpty(TWILIO_ACCOUNT_SID) || string.IsNullOrEmpty(TWILIO_AUTH_TOKEN) 
+                                                            || string.IsNullOrEmpty(TWILIO_PHONE_NUMBER) 
+                                                            || string.IsNullOrEmpty(PHONE_NUMBER);
         }
 
         public async Task SendNotification(string message)
