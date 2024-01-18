@@ -26,7 +26,7 @@ namespace MHRS_OtomatikRandevu.Services
 
             if (!HasConfig())
             {
-                ConsoleUtil.WriteText("Lütfen config dosyasındaki değerleri doldurun ve tekrar başlatın.", 2000);
+                ConsoleUtil.WriteText("Eğer bildirim sistemini kullanmak istiyorsanız lütfen config dosyasındaki değerleri doldurun ve tekrar başlatın.", 2000);
             }
             
             TwilioClient.Init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
