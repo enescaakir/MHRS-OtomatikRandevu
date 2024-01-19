@@ -15,7 +15,7 @@ Aradığınız kriterlere uygun randevu sisteme düştüğünde 5 dakika içeris
 Mevcut uygulamada bildirim sistemi opsiyonel olmadığı için uygulamayı kullanmaya başlamadan önce aşağıdaki adımları mutlaka uygulamanız gerekmektedir.
 
 1-[Twilio](https://twilio.com) hesabı açıp cep telefonu numaranızı onaylayın,\
-2-[Konsol sayfası](https://console.twilio.com)na giderek aşağıdaki bilgilerinize ulaşabilirsiniz. Bu bilgileri [NotificationService](https://github.com/kuzudoli/MHRS-OtomatikRandevu/blob/master/MHRS-OtomatikRandevu/Services/NotificationService.cs) sınıfındaki alanlara eklemeniz gerekmektedir.
+2-[Konsol sayfası](https://console.twilio.com)na giderek aşağıdaki bilgilerinize ulaşabilirsiniz. Bu bilgileri [App.Config](https://github.com/kuzudoli/MHRS-OtomatikRandevu/blob/master/MHRS-OtomatikRandevu/App.config) dosyasındaki alanlara eklemeniz gerekmektedir.
 
 ![Twilio Hesap Bilgileri](https://i.hizliresim.com/tfeswu3.jpg)
 
