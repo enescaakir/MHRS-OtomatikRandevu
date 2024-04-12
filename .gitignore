@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/MHRS-OtomatikRandevu/App.config
+/MHRS-OtomatikRandevu/token.txt

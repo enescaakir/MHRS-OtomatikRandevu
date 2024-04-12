@@ -1,4 +1,5 @@
-﻿using MHRS_OtomatikRandevu.Models.RequestModels;
+﻿using MHRS_OtomatikRandevu.Models;
+using MHRS_OtomatikRandevu.Models.RequestModels;
 using MHRS_OtomatikRandevu.Models.ResponseModels;
 using MHRS_OtomatikRandevu.Services;
 using MHRS_OtomatikRandevu.Services.Abstracts;
@@ -39,11 +40,12 @@ namespace MHRS_OtomatikRandevu
 
                 Console.WriteLine("Giriş Yapılıyor...");
 
-                JWT_TOKEN = GetToken(_client);
-                if (string.IsNullOrEmpty(JWT_TOKEN))
+                var tokenData = GetToken(_client);
+                if (string.IsNullOrEmpty(tokenData.Token))
                     continue;
 
-                TOKEN_END_DATE = DateTime.Now.AddDays(1);
+                JWT_TOKEN = tokenData.Token;
+                TOKEN_END_DATE = tokenData.Expiration;
 
                 _client.AddOrUpdateAuthorizationHeader(JWT_TOKEN);
 
@@ -271,24 +273,34 @@ namespace MHRS_OtomatikRandevu
             else
                 doctorIndex = -1;
 
+            Console.Clear();
             #endregion
 
             #region Randevu Alım Bölümü
-            ConsoleUtil.WriteText("Yapmış olduğunuz seçimler doğrultusunda müsait olan ilk randevu otomatik olarak alınacaktır\nRandevu tarihi SMS olarak iletilecektir.", 2000);
+            bool sendNotification = false;
+
+            Console.WriteLine("SMS ile bildirim almak ister misiniz? (e) Evet / (h) Hayır");
+            string sendNotificationAnswer = Console.ReadLine() ?? "h";
+
+            if (sendNotificationAnswer is "y" or "Y")
+                sendNotification = true;
+
+            ConsoleUtil.WriteText("Yapmış olduğunuz seçimler doğrultusunda müsait olan ilk randevu otomatik olarak alınacaktır.\nEğer SMS bildirimini onayladıysanız randevu tarihi SMS olarak iletilecektir.", 3000);
             Console.Clear();
+
             bool appointmentState = false;
             bool isNotified = false;
             do
             {
                 if (TOKEN_END_DATE == default || TOKEN_END_DATE < DateTime.Now)
                 {
-                    JWT_TOKEN = GetToken(_client);
-                    if (string.IsNullOrEmpty(JWT_TOKEN))
+                    var tokenData = GetToken(_client);
+                    if (string.IsNullOrEmpty(tokenData.Token))
                     {
                         ConsoleUtil.WriteText("Yeniden giriş yapılırken bir hata meydana geldi!", 2000);
                         return;
-
                     }
+                    JWT_TOKEN = tokenData.Token;
                     _client.AddOrUpdateAuthorizationHeader(JWT_TOKEN);
                 }
 
@@ -320,32 +332,54 @@ namespace MHRS_OtomatikRandevu
                 };
 
                 Console.WriteLine($"Randevu bulundu - Müsait Tarih: {slot.BaslangicZamani}");
-                if (!isNotified)
+                if (!isNotified && sendNotification)
                     _notificationService.SendNotification($"\n\nRandevu bulundu - Müsait Tarih: {slot.BaslangicZamani}").Wait();
 
-                appointmentState = MakeAppointment(_client, appointmentRequestModel);
+                appointmentState = MakeAppointment(_client, appointmentRequestModel, sendNotification);
             } while (!appointmentState);
             #endregion
 
             Console.ReadKey();
         }
 
-        static string GetToken(IClientService client)
+        static JwtTokenModel GetToken(IClientService client)
         {
-            var loginRequestModel = new LoginRequestModel
+            var fileName = "token.txt";
+            var rawPath = Directory.GetCurrentDirectory()
+                .Replace("\\", "/")
+                .Split('/')
+                .SkipLast(3)
+                .ToList();
+            try
             {
-                KullaniciAdi = TC_NO,
-                Parola = SIFRE
-            };
+                rawPath.Add(fileName);
+                var path = Path.Combine(rawPath.ToArray());
 
-            var loginResponse = client.Post<LoginResponseModel>(MHRSUrls.BaseUrl, MHRSUrls.Login, loginRequestModel).Result;
-            if (loginResponse.Data == null || (loginResponse.Data != null && string.IsNullOrEmpty(loginResponse.Data?.Jwt)))
-            {
-                ConsoleUtil.WriteText("Giriş yapılırken bir hata meydana geldi!", 2000);
-                return null;
+                var tokenData = File.ReadAllText(path);
+                if (string.IsNullOrEmpty(tokenData) || JwtTokenUtil.GetTokenExpireTime(tokenData) < DateTime.Now)
+                    throw new Exception();
+
+                return new() { Token = tokenData, Expiration = JwtTokenUtil.GetTokenExpireTime(tokenData) };
             }
+            catch (Exception)
+            {
+                var loginRequestModel = new LoginRequestModel
+                {
+                    KullaniciAdi = TC_NO,
+                    Parola = SIFRE
+                };
 
-            return loginResponse.Data!.Jwt;
+                var loginResponse = client.Post<LoginResponseModel>(MHRSUrls.BaseUrl, MHRSUrls.Login, loginRequestModel).Result;
+                if (loginResponse.Data == null || (loginResponse.Data != null && string.IsNullOrEmpty(loginResponse.Data?.Jwt)))
+                {
+                    ConsoleUtil.WriteText("Giriş yapılırken bir hata meydana geldi!", 2000);
+                    return null;
+                }
+
+                File.WriteAllText(Path.Combine(rawPath.ToArray()), loginResponse.Data!.Jwt);
+
+                return new() { Token = loginResponse.Data!.Jwt, Expiration = JwtTokenUtil.GetTokenExpireTime(loginResponse.Data!.Jwt) };
+            }
         }
 
         //Aynı gün içerisinde tek slot mevcut ise o slotu bulur
@@ -353,7 +387,7 @@ namespace MHRS_OtomatikRandevu
         static SubSlot GetSlot(IClientService client, SlotRequestModel slotRequestModel)
         {
             var slotListResponse = client.Post<List<SlotResponseModel>>(MHRSUrls.BaseUrl, MHRSUrls.GetSlots, slotRequestModel).Result;
-            if (slotListResponse.Data == null)
+            if (slotListResponse.Data is null)
             {
                 ConsoleUtil.WriteText("Bir hata meydana geldi!", 2000);
                 return null;
@@ -370,7 +404,7 @@ namespace MHRS_OtomatikRandevu
             return slot;
         }
 
-        static bool MakeAppointment(IClientService client, AppointmentRequestModel appointmentRequestModel)
+        static bool MakeAppointment(IClientService client, AppointmentRequestModel appointmentRequestModel, bool sendNotification)
         {
             var randevuResp = client.PostSimple(MHRSUrls.BaseUrl, MHRSUrls.MakeAppointment, appointmentRequestModel);
             if (randevuResp.StatusCode != HttpStatusCode.OK)
@@ -380,9 +414,10 @@ namespace MHRS_OtomatikRandevu
             }
 
             var message = $"Randevu alındı! \nRandevu Tarihi -> {appointmentRequestModel.BaslangicZamani}";
-
             Console.WriteLine(message);
-            _notificationService.SendNotification(message).Wait();
+
+            if (sendNotification)
+                _notificationService.SendNotification(message).Wait();
 
             return true;
         }
