@@ -16,15 +16,16 @@ namespace MHRS_OtomatikRandevu.Services
 
         public NotificationService()
         {
-            if(!HasConfig())
+        // if config is empty set config
+            if(IsConfigEmpty())
             {
                 TWILIO_ACCOUNT_SID = ConfigurationManager.AppSettings.Get(nameof(TWILIO_ACCOUNT_SID));
                 TWILIO_AUTH_TOKEN = ConfigurationManager.AppSettings.Get(nameof(TWILIO_AUTH_TOKEN));
                 TWILIO_PHONE_NUMBER = ConfigurationManager.AppSettings.Get(nameof(TWILIO_PHONE_NUMBER));
                 PHONE_NUMBER = ConfigurationManager.AppSettings.Get(nameof(PHONE_NUMBER));
             }
-
-            if (!HasConfig())
+            
+            if (IsConfigEmpty())
             {
                 ConsoleUtil.WriteText("Eğer bildirim sistemini kullanmak istiyorsanız lütfen config dosyasındaki değerleri doldurun ve tekrar başlatın.", 2000);
             }
@@ -32,7 +33,7 @@ namespace MHRS_OtomatikRandevu.Services
             TwilioClient.Init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
         }
 
-        private bool HasConfig()
+        private bool IsConfigEmpty()
         {
             return string.IsNullOrEmpty(TWILIO_ACCOUNT_SID) || string.IsNullOrEmpty(TWILIO_AUTH_TOKEN) 
                                                             || string.IsNullOrEmpty(TWILIO_PHONE_NUMBER) 
