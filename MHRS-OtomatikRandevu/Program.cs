@@ -11,15 +11,15 @@ namespace MHRS_OtomatikRandevu
 {
     public class Program
     {
-        public static string TC_NO;
-        public static string SIFRE;
-        public static string CINSIYET;
+        static string TC_NO;
+        static string SIFRE;
 
-        public static string JWT_TOKEN;
-        public static DateTime TOKEN_END_DATE;
+        const string TOKEN_FILE_NAME = "token.txt";
+        static string JWT_TOKEN;
+        static DateTime TOKEN_END_DATE;
 
-        public static IClientService _client;
-        public static INotificationService _notificationService;
+        static IClientService _client;
+        static INotificationService _notificationService;
 
         static void Main(string[] args)
         {
@@ -344,7 +344,6 @@ namespace MHRS_OtomatikRandevu
 
         static JwtTokenModel GetToken(IClientService client)
         {
-            var fileName = "token.txt";
             var rawPath = Directory.GetCurrentDirectory()
                 .Replace("\\", "/")
                 .Split('/')
@@ -352,7 +351,7 @@ namespace MHRS_OtomatikRandevu
                 .ToList();
             try
             {
-                rawPath.Add(fileName);
+                rawPath.Add(TOKEN_FILE_NAME);
                 var path = Path.Combine(rawPath.ToArray());
 
                 var tokenData = File.ReadAllText(path);
