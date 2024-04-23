@@ -345,16 +345,14 @@ namespace MHRS_OtomatikRandevu
         static JwtTokenModel GetToken(IClientService client)
         {
             var rawPath = Directory.GetCurrentDirectory()
-                .Replace("\\", "/")
-                .Split('/')
-                .SkipLast(3)
-                .ToList();
+                .Split("\\bin\\")
+                .SkipLast(1)
+                .FirstOrDefault();
+            var tokenFilePath = Path.Combine(rawPath, TOKEN_FILE_NAME);
             try
             {
-                rawPath.Add(TOKEN_FILE_NAME);
-                var path = Path.Combine(rawPath.ToArray());
 
-                var tokenData = File.ReadAllText(path);
+                var tokenData = File.ReadAllText(tokenFilePath);
                 if (string.IsNullOrEmpty(tokenData) || JwtTokenUtil.GetTokenExpireTime(tokenData) < DateTime.Now)
                     throw new Exception();
 
@@ -375,7 +373,7 @@ namespace MHRS_OtomatikRandevu
                     return null;
                 }
 
-                File.WriteAllText(Path.Combine(rawPath.ToArray()), loginResponse.Data!.Jwt);
+                File.WriteAllText(tokenFilePath, loginResponse.Data!.Jwt);
 
                 return new() { Token = loginResponse.Data!.Jwt, Expiration = JwtTokenUtil.GetTokenExpireTime(loginResponse.Data!.Jwt) };
             }
