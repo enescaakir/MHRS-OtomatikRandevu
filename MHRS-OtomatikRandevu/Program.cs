@@ -282,7 +282,7 @@ namespace MHRS_OtomatikRandevu
             Console.WriteLine("SMS ile bildirim almak ister misiniz? (e) Evet / (h) Hayır");
             string sendNotificationAnswer = Console.ReadLine() ?? "h";
 
-            if (sendNotificationAnswer is "y" or "Y")
+            if (sendNotificationAnswer is "e" or "E")
                 sendNotification = true;
 
             ConsoleUtil.WriteText("Yapmış olduğunuz seçimler doğrultusunda müsait olan ilk randevu otomatik olarak alınacaktır.\nEğer SMS bildirimini onayladıysanız randevu tarihi SMS olarak iletilecektir.", 3000);
