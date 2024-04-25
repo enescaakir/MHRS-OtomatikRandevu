@@ -41,7 +41,7 @@ namespace MHRS_OtomatikRandevu
                 Console.WriteLine("Giriş Yapılıyor...");
 
                 var tokenData = GetToken(_client);
-                if (string.IsNullOrEmpty(tokenData.Token))
+                if (tokenData == null || string.IsNullOrEmpty(tokenData.Token))
                     continue;
 
                 JWT_TOKEN = tokenData.Token;
@@ -344,13 +344,15 @@ namespace MHRS_OtomatikRandevu
 
         static JwtTokenModel GetToken(IClientService client)
         {
-            var rawPath = Directory.GetCurrentDirectory()
-                .Split("\\bin\\")
-                .SkipLast(1)
-                .FirstOrDefault();
-            var tokenFilePath = Path.Combine(rawPath, TOKEN_FILE_NAME);
+            var rawPath = string.Empty;
+            var tokenFilePath = string.Empty;
             try
             {
+                rawPath = Directory.GetCurrentDirectory()
+                    .Split("\\bin\\")
+                    .SkipLast(1)
+                    .FirstOrDefault();
+                tokenFilePath = Path.Combine(rawPath, TOKEN_FILE_NAME);
 
                 var tokenData = File.ReadAllText(tokenFilePath);
                 if (string.IsNullOrEmpty(tokenData) || JwtTokenUtil.GetTokenExpireTime(tokenData) < DateTime.Now)
@@ -373,7 +375,8 @@ namespace MHRS_OtomatikRandevu
                     return null;
                 }
 
-                File.WriteAllText(tokenFilePath, loginResponse.Data!.Jwt);
+                if(!string.IsNullOrEmpty(tokenFilePath))
+                    File.WriteAllText(tokenFilePath, loginResponse.Data!.Jwt);
 
                 return new() { Token = loginResponse.Data!.Jwt, Expiration = JwtTokenUtil.GetTokenExpireTime(loginResponse.Data!.Jwt) };
             }
