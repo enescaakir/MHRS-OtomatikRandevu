@@ -96,7 +96,6 @@ namespace MHRS_OtomatikRandevu
                 }
 
             } while ((provinceIndex < 1 || provinceIndex > 81) && !istanbulSubLocationIds.Contains(provinceIndex));
-            provinceIndex = provinceList[provinceIndex - 1].Value;
 
             #endregion
 
