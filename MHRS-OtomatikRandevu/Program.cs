@@ -64,6 +64,7 @@ namespace MHRS_OtomatikRandevu
                                     .DistinctBy(x => x.Value)
                                     .OrderBy(x => x.Value)
                                     .ToList();
+            var istanbulSubLocationIds = new int[] { 341, 342 }; 
             do
             {
                 Console.Clear();
@@ -94,7 +95,7 @@ namespace MHRS_OtomatikRandevu
                         provinceIndex = int.Parse("34" + subLocationIndex);
                 }
 
-            } while (provinceIndex < 1 || provinceIndex > 81);
+            } while ((provinceIndex < 1 || provinceIndex > 81) && !istanbulSubLocationIds.Contains(provinceIndex));
             provinceIndex = provinceList[provinceIndex - 1].Value;
 
             #endregion
