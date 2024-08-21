@@ -2,6 +2,12 @@
 # MHRS Otomatik Randevu
 MHRS kullanıcı bilgileriniz ile giriş yaptıktan sonra İl-İlçe-Klinik-Doktor gibi filtrelemeler yaparak aradığınız randevunun müsaitlik durumunu anlık olarak takip edebilir veya randevuyu otomatik olarak alabilirsiniz.
 
+## Hızlı Çalıştır Adımları
+* Bilgisayarınızda .NET 7 Framework'ün yüklü olduğundan emin olun.
+  * Eğer yüklü değilse buradaki [linkten](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) size uygun olanı indirip kurun
+* Ardından HizliCalistir klasöründe bulunan _MHRS-OtomatikRandevu.exe_ adlı dosyaya çift tıklayarak çalıştırın
+* Adımları takip ederek randevu aramanızı başlatın
+
 ## Neden Buna İhtiyaç Duyuldu?
 Devlet hastanelerinde randevu bulmak oldukça zorlaştı, MHRS'nin vatandaşlara sunmuş olduğu randevu müsaitlik bildirim sistemi yeteri kadar hızlı ve sağlıklı çalışmadığı için bu konsol uygulaması geliştirildi.
 
