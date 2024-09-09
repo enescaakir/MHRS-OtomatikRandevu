@@ -14,15 +14,15 @@ Devlet hastanelerinde randevu bulmak oldukça zorlaştı, MHRS'nin vatandaşlara
 ## Randevu Tarama Sıklığı Nedir?
 Aradığınız kriterlere uygun randevu sisteme düştüğünde 5 dakika içerisinde otomatik olarak randevu tarafınıza bildirilir ve alınır.
 
-## Bildirim Sistemi Nasıl İşlemektedir?
-Ücretsiz bir şekilde kullanabileceğiniz [Twilio](https://twilio.com) bildirim servisinden hesap oluştururken kullandığınız cep telefonunuza sms gönderilir.
+~## Bildirim Sistemi Nasıl İşlemektedir?
+Ücretsiz bir şekilde kullanabileceğiniz [Twilio](https://twilio.com) bildirim servisinden hesap oluştururken kullandığınız cep telefonunuza sms gönderilir.~
 
-## Bildirim Sistemi Kurulumu
-Mevcut uygulamada bildirim sistemi opsiyonel olmadığı için uygulamayı kullanmaya başlamadan önce aşağıdaki adımları mutlaka uygulamanız gerekmektedir.
+~## Bildirim Sistemi Kurulumu
+Mevcut uygulamada bildirim sistemi opsiyonel olmadığı için uygulamayı kullanmaya başlamadan önce aşağıdaki adımları mutlaka uygulamanız gerekmektedir.~
 
-1-[Twilio](https://twilio.com) hesabı açıp cep telefonu numaranızı onaylayın,\
-2-[Konsol sayfası](https://console.twilio.com)na giderek aşağıdaki bilgilerinize ulaşabilirsiniz. Bu bilgileri [App.Config](https://github.com/kuzudoli/MHRS-OtomatikRandevu/blob/master/MHRS-OtomatikRandevu/App.config) dosyasındaki alanlara eklemeniz gerekmektedir.
+~1-[Twilio](https://twilio.com) hesabı açıp cep telefonu numaranızı onaylayın,\
+2-[Konsol sayfası](https://console.twilio.com)na giderek aşağıdaki bilgilerinize ulaşabilirsiniz. Bu bilgileri [App.Config](https://github.com/kuzudoli/MHRS-OtomatikRandevu/blob/master/MHRS-OtomatikRandevu/App.config) dosyasındaki alanlara eklemeniz gerekmektedir.~
 
 ![Twilio Hesap Bilgileri](https://i.hizliresim.com/tfeswu3.jpg)
 
-<b>NOT: SADECE TWILIO HESABINIZA TANIMLI OLAN ONAYLANMIŞ CEP TELEFONU NUMARANIZA SMS GÖNDERİLEBİLİR.</b>
+~<b>NOT: SADECE TWILIO HESABINIZA TANIMLI OLAN ONAYLANMIŞ CEP TELEFONU NUMARANIZA SMS GÖNDERİLEBİLİR.</b>~
