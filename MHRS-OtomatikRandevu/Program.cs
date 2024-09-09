@@ -277,15 +277,7 @@ namespace MHRS_OtomatikRandevu
             #endregion
 
             #region Randevu Alım Bölümü
-            bool sendNotification = false;
-
-            Console.WriteLine("SMS ile bildirim almak ister misiniz? (e) Evet / (h) Hayır");
-            string sendNotificationAnswer = Console.ReadLine() ?? "h";
-
-            if (sendNotificationAnswer is "e" or "E")
-                sendNotification = true;
-
-            ConsoleUtil.WriteText("Yapmış olduğunuz seçimler doğrultusunda müsait olan ilk randevu otomatik olarak alınacaktır.\nEğer SMS bildirimini onayladıysanız randevu tarihi SMS olarak iletilecektir.", 3000);
+            ConsoleUtil.WriteText("Yapmış olduğunuz seçimler doğrultusunda müsait olan ilk randevu otomatik olarak alınacaktır.", 3000);
             Console.Clear();
 
             bool appointmentState = false;
@@ -332,10 +324,7 @@ namespace MHRS_OtomatikRandevu
                 };
 
                 Console.WriteLine($"Randevu bulundu - Müsait Tarih: {slot.BaslangicZamani}");
-                if (!isNotified && sendNotification)
-                    _notificationService.SendNotification($"\n\nRandevu bulundu - Müsait Tarih: {slot.BaslangicZamani}").Wait();
-
-                appointmentState = MakeAppointment(_client, appointmentRequestModel, sendNotification);
+                appointmentState = MakeAppointment(_client, appointmentRequestModel, sendNotification: false);
             } while (!appointmentState);
             #endregion
 
