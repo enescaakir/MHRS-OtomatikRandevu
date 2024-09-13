@@ -26,7 +26,8 @@ namespace MHRS_OtomatikRandevu.Services
 
         public T GetSimple<T>(string baseUrl, string endpoint) where T : class
         {
-            return _client.GetFromJsonAsync<T>(string.Concat(baseUrl, endpoint)).Result;
+            var response = _client.GetFromJsonAsync<T>(string.Concat(baseUrl, endpoint)).Result;
+            return response;
         }
 
         public async Task<ApiResponse<T>> Post<T>(string baseUrl, string endpoint, object requestModel) where T : class

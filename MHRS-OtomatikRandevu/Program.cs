@@ -64,7 +64,7 @@ namespace MHRS_OtomatikRandevu
                                     .DistinctBy(x => x.Value)
                                     .OrderBy(x => x.Value)
                                     .ToList();
-            var istanbulSubLocationIds = new int[] { 341, 342 }; 
+            var istanbulSubLocationIds = new int[] { 341, 342 };
             do
             {
                 Console.Clear();
@@ -276,6 +276,63 @@ namespace MHRS_OtomatikRandevu
             Console.Clear();
             #endregion
 
+            #region Tarih Seçim Bölümü
+            string? startDate;
+            string? endDate;
+
+            ConsoleUtil.WriteText("Tarih girmek istemiyorsanız boş bırakınız...", 0);
+            ConsoleUtil.WriteText($"UYARI: Bitiş tarihi en fazla {DateTime.Now.AddDays(12).ToString("dd-MM-yyyy")} olabilir.\n", 0);
+
+            do
+            {
+                Console.Write("Başlangıç tarihi giriniz (Format: Gün-Ay-Yıl): ");
+                startDate = Console.ReadLine();
+                if (string.IsNullOrEmpty(startDate))
+                {
+                    startDate = startDate != string.Empty ? startDate : null;
+                    break;
+                }
+
+                try
+                {
+                    var dateArr = startDate.Split('-').Select(x => Convert.ToInt32(x)).ToArray();
+                    var date = new DateTime(dateArr[2], dateArr[1], dateArr[0]);
+                    startDate = date.ToString("yyyy-MM-dd HH:mm:ss");
+                    break;
+                }
+                catch (Exception)
+                {
+                    ConsoleUtil.WriteText("Geçersiz tarih, tekrar giriniz", 0);
+                }
+
+            } while (true);
+
+
+            do
+            {
+                Console.Write("Bitiş tarihi giriniz (Format: Gün-Ay-Yıl): ");
+                endDate = Console.ReadLine();
+                if (string.IsNullOrEmpty(endDate))
+                {
+                    endDate = endDate != string.Empty ? endDate : null;
+                    break;
+                }
+
+                try
+                {
+                    var dateArr = endDate.Split('-').Select(x => Convert.ToInt32(x)).ToArray();
+                    var date = new DateTime(dateArr[2], dateArr[1], dateArr[0]);
+                    endDate = date.ToString("yyyy-MM-dd HH:mm:ss");
+                    break;
+                }
+                catch (Exception)
+                {
+                    ConsoleUtil.WriteText("Geçersiz tarih, tekrar giriniz", 0);
+                }
+
+            } while (true);
+            #endregion
+
             #region Randevu Alım Bölümü
             ConsoleUtil.WriteText("Yapmış olduğunuz seçimler doğrultusunda müsait olan ilk randevu otomatik olarak alınacaktır.", 3000);
             Console.Clear();
@@ -303,7 +360,9 @@ namespace MHRS_OtomatikRandevu
                     MhrsIlceId = districtIndex,
                     MhrsKlinikId = clinicIndex,
                     MhrsKurumId = hospitalIndex,
-                    MuayeneYeriId = placeIndex
+                    MuayeneYeriId = placeIndex,
+                    BaslangicZamani = startDate,
+                    BitisZamani = endDate
                 };
 
                 var slot = GetSlot(_client, slotRequestModel);
@@ -364,7 +423,7 @@ namespace MHRS_OtomatikRandevu
                     return null;
                 }
 
-                if(!string.IsNullOrEmpty(tokenFilePath))
+                if (!string.IsNullOrEmpty(tokenFilePath))
                     File.WriteAllText(tokenFilePath, loginResponse.Data!.Jwt);
 
                 return new() { Token = loginResponse.Data!.Jwt, Expiration = JwtTokenUtil.GetTokenExpireTime(loginResponse.Data!.Jwt) };
