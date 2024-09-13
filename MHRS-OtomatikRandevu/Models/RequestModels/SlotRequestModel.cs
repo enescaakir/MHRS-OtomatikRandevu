@@ -8,10 +8,10 @@ namespace MHRS_OtomatikRandevu.Models.RequestModels
         public int AksiyonId { get; } = 200;
 
         [JsonPropertyName("baslangicZamani")]
-        public string BaslangicZamani { get; set; } = "2024-09-11 13:54:32";
+        public string BaslangicZamani { get; set; }
 
         [JsonPropertyName("bitisZamani")]
-        public string BitisZamani { get; set; } = "2024-09-13 13:54:32";
+        public string BitisZamani { get; set; }
 
         [JsonPropertyName("cinsiyet")]
         public string Cinsiyet { get; } = "F";
