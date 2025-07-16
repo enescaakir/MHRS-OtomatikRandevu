@@ -164,7 +164,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 ## 🔗 İletişim
 
 **Geliştirici**: Enes ÇAKIR     
-[Website](https://enescakr.com/) | [**GitHub**](https://github.com/enescaakir) | [**Linkedin**](https://www.linkedin.com/in/enescaakir/)
+[**Website**](https://enescakr.com/) | [**GitHub**](https://github.com/enescaakir) | [**Linkedin**](https://www.linkedin.com/in/enescaakir/)
 
 ---
 
