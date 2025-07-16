@@ -15,22 +15,22 @@ namespace MHRS_OtomatikRandevu.Services
             _client = new HttpClient();
         }
 
-        public ApiResponse<T> Get<T>(string baseUrl, string endpoint) where T : class
+        public async Task<ApiResponse<T>> GetAsync<T>(string baseUrl, string endpoint) where T : class
         {
-            var response = _client.GetFromJsonAsync<ApiResponse<T>>(string.Concat(baseUrl, endpoint)).Result;
-            if ((response.Warnings != null && response.Warnings.Any()) || (response.Errors != null && response.Errors.Any()))
+            var response = await _client.GetFromJsonAsync<ApiResponse<T>>(string.Concat(baseUrl, endpoint));
+            if (response is null || (response.Warnings != null && response.Warnings.Any()) || (response.Errors != null && response.Errors.Any()))
                 return new();
 
             return response;
         }
 
-        public T GetSimple<T>(string baseUrl, string endpoint) where T : class
+        public async Task<T> GetSimpleAsync<T>(string baseUrl, string endpoint) where T : class
         {
-            var response = _client.GetFromJsonAsync<T>(string.Concat(baseUrl, endpoint)).Result;
+            var response = await _client.GetFromJsonAsync<T>(string.Concat(baseUrl, endpoint));
             return response;
         }
 
-        public async Task<ApiResponse<T>> Post<T>(string baseUrl, string endpoint, object requestModel) where T : class
+        public async Task<ApiResponse<T>> PostAsync<T>(string baseUrl, string endpoint, object requestModel) where T : class
         {
             var response = await _client.PostAsJsonAsync(string.Concat(baseUrl, endpoint), requestModel);
             var data = response.Content.ReadAsStringAsync().Result;
@@ -38,12 +38,12 @@ namespace MHRS_OtomatikRandevu.Services
                 return new();
 
             var mappedData = JsonSerializer.Deserialize<ApiResponse<T>>(data);
-            return mappedData;
+            return mappedData ?? new();
         }
 
-        public HttpResponseMessage PostSimple(string baseUrl, string endpoint, object requestModel)
+        public async Task<HttpResponseMessage> PostSimpleAsync(string baseUrl, string endpoint, object requestModel)
         {
-            return _client.PostAsJsonAsync(string.Concat(baseUrl, endpoint), requestModel).Result;
+            return await _client.PostAsJsonAsync(string.Concat(baseUrl, endpoint), requestModel);
         }
 
         public void AddOrUpdateAuthorizationHeader(string jwtToken)

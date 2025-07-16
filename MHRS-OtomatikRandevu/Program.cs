@@ -19,12 +19,10 @@ namespace MHRS_OtomatikRandevu
         static DateTime TOKEN_END_DATE;
 
         static IClientService _client;
-        static INotificationService _notificationService;
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             _client = new ClientService();
-            _notificationService = new NotificationService();
 
             #region Giriş Yap Bölümü
             do
@@ -40,8 +38,8 @@ namespace MHRS_OtomatikRandevu
 
                 Console.WriteLine("Giriş Yapılıyor...");
 
-                var tokenData = GetToken(_client);
-                if (tokenData == null || string.IsNullOrEmpty(tokenData.Token))
+                var tokenData = await GetToken(_client);
+                if (tokenData is null || string.IsNullOrEmpty(tokenData.Token))
                     continue;
 
                 JWT_TOKEN = tokenData.Token;
@@ -54,8 +52,8 @@ namespace MHRS_OtomatikRandevu
 
             #region İl Seçim Bölümü
             int provinceIndex = 0;
-            var provinceListResponse = _client.GetSimple<List<GenericResponseModel>>(MHRSUrls.BaseUrl, MHRSUrls.GetProvinces);
-            if (provinceListResponse == null || !provinceListResponse.Any())
+            var provinceListResponse = await _client.GetSimpleAsync<List<GenericResponseModel>>(MHRSUrls.BaseUrl, MHRSUrls.GetProvinces);
+            if (provinceListResponse is null || !provinceListResponse.Any())
             {
                 ConsoleUtil.WriteText("İl listesi alınırken bir hata meydana geldi!", 2000);
                 return;
@@ -75,7 +73,7 @@ namespace MHRS_OtomatikRandevu
                     Console.WriteLine($"{i + 1}-{provinceList[i].Text}");
                 }
                 Console.WriteLine("-------------------------------------------");
-                Console.Write("İl Numarası (Plaka) Giriniz: ");
+                Console.Write("Randevu almak istediğiniz ilin plaka kodunu giriniz: ");
 
                 try
                 {
@@ -88,7 +86,7 @@ namespace MHRS_OtomatikRandevu
                 }
 
 
-                if (provinceIndex == 34)
+                if (provinceIndex is 34)
                 {
                     int subLocationIndex = -1;
                     do
@@ -125,8 +123,8 @@ namespace MHRS_OtomatikRandevu
 
             #region İlçe Seçim Bölümü
             int districtIndex = -1;
-            var districtList = _client.GetSimple<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetDistricts, provinceIndex));
-            if (districtList == null)
+            var districtList = await _client.GetSimpleAsync<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetDistricts, provinceIndex));
+            if (districtList is null)
             {
                 ConsoleUtil.WriteText($"İlçe listesi alınamadı (İl Kodu: {provinceIndex}). Program sonlandırılıyor.", 3000);
                 return;
@@ -169,10 +167,10 @@ namespace MHRS_OtomatikRandevu
 
             #region Klinik Seçim Bölümü
             int clinicIndex = 0;
-            var clinicListResponse = _client.Get<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetClinics, provinceIndex, districtIndex));
-            if (clinicListResponse == null || !clinicListResponse.Success || clinicListResponse.Data == null || !clinicListResponse.Data.Any())
+            var clinicListResponse = await _client.GetAsync<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetClinics, provinceIndex, districtIndex));
+            if (clinicListResponse is null || !clinicListResponse.Success || clinicListResponse.Data is null || !clinicListResponse.Data.Any())
             {
-                ConsoleUtil.WriteText("Klinik listesi alınamadı veya boş geldi. Program sonlandırılıyor.", 3000);
+                ConsoleUtil.WriteText("Seçilen il/ilçe için uygun klinik bilgisi alınamadı. Lütfen daha sonra tekrar deneyin.", 3000);
                 return;
             }
             var clinicList = clinicListResponse.Data;
@@ -202,8 +200,8 @@ namespace MHRS_OtomatikRandevu
 
             #region Hastane Seçim Bölümü
             int hospitalIndex = -1;
-            var hospitalListResponse = _client.Get<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetHospitals, provinceIndex, districtIndex, clinicIndex));
-            if (hospitalListResponse == null || !hospitalListResponse.Success || hospitalListResponse.Data == null || !hospitalListResponse.Data.Any())
+            var hospitalListResponse = await _client.GetAsync<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetHospitals, provinceIndex, districtIndex, clinicIndex));
+            if (hospitalListResponse is null || !hospitalListResponse.Success || hospitalListResponse.Data is null || !hospitalListResponse.Data.Any())
             {
                 ConsoleUtil.WriteText("Hastane listesi alınamadı veya boş geldi. Program sonlandırılıyor.", 3000);
                 return;
@@ -260,7 +258,7 @@ namespace MHRS_OtomatikRandevu
                         }
                     } while (subHospitalIndex < 0 || subHospitalIndex > hospital.Children.Count);
 
-                    if (subHospitalIndex == 0)
+                    if (subHospitalIndex is 0)
                     {
                         hospitalIndex = hospital.Value;
                     }
@@ -283,8 +281,8 @@ namespace MHRS_OtomatikRandevu
 
             #region Muayene Yeri Seçim Bölümü
             int placeIndex = -1;
-            var placeListResponse = _client.Get<List<ClinicResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetPlaces, hospitalIndex, clinicIndex));
-            if (placeListResponse == null || !placeListResponse.Success || placeListResponse.Data == null || !placeListResponse.Data.Any())
+            var placeListResponse = await _client.GetAsync<List<ClinicResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetPlaces, hospitalIndex, clinicIndex));
+            if (placeListResponse is null || !placeListResponse.Success || placeListResponse.Data is null || !placeListResponse.Data.Any())
             {
                 ConsoleUtil.WriteText("Muayene Yeri listesi alınamadı veya boş geldi. Program sonlandırılıyor.", 3000);
                 return;
@@ -322,8 +320,8 @@ namespace MHRS_OtomatikRandevu
 
             #region Doktor Seçim Bölümü
             int doctorIndex = -1;
-            var doctorListResponse = _client.Get<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetDoctors, hospitalIndex, clinicIndex));
-            if (doctorListResponse == null || !doctorListResponse.Success || doctorListResponse.Data == null || !doctorListResponse.Data.Any())
+            var doctorListResponse = await _client.GetAsync<List<GenericResponseModel>>(MHRSUrls.BaseUrl, string.Format(MHRSUrls.GetDoctors, hospitalIndex, clinicIndex));
+            if (doctorListResponse is null || !doctorListResponse.Success || doctorListResponse.Data is null || !doctorListResponse.Data.Any())
             {
                 ConsoleUtil.WriteText("Doktor listesi alınamadı veya boş geldi. Program sonlandırılıyor.", 3000);
                 return;
@@ -364,7 +362,7 @@ namespace MHRS_OtomatikRandevu
             string? endDate = null;
 
             ConsoleUtil.WriteText("Tarih girmek istemiyorsanız boş bırakınız (Enter'a basın)...", 0);
-            ConsoleUtil.WriteText($"UYARI: Bitiş tarihi en fazla {DateTime.Now.AddDays(12).ToString("dd-MM-yyyy")} olabilir.\n", 0);
+            ConsoleUtil.WriteText($"Not: Bitiş tarihi en fazla {DateTime.Now.AddDays(12):dd-MM-yyyy} olabilir.\n", 0);
 
             do
             {
@@ -387,7 +385,7 @@ namespace MHRS_OtomatikRandevu
                 catch (Exception ex) when (ex is FormatException || ex is ArgumentOutOfRangeException || ex is IndexOutOfRangeException)
                 {
                     // FIX: Tarih formatı veya geçerliliği hatası (örn: 30-02-2025, AA-12-2025)
-                    ConsoleUtil.WriteText($"Geçersiz tarih formatı veya tarih! Hata: {ex.Message}. Lütfen GG-AA-YYYY formatında tekrar girin.", 0);
+                    ConsoleUtil.WriteText("Tarih formatı hatalı. Lütfen tarihi şu şekilde giriniz: Gün-Ay-Yıl (örnek: 28-04-2025)", 0);
                 }
                 catch (Exception ex)
                 {
@@ -429,7 +427,7 @@ namespace MHRS_OtomatikRandevu
                 catch (Exception ex) when (ex is FormatException || ex is ArgumentOutOfRangeException || ex is IndexOutOfRangeException)
                 {
                     // FIX: Tarih formatı veya geçerliliği hatası
-                    ConsoleUtil.WriteText($"Geçersiz tarih formatı veya tarih! Hata: {ex.Message}. Lütfen GG-AA-YYYY formatında tekrar girin.", 0);
+                    ConsoleUtil.WriteText("Tarih formatı hatalı. Lütfen tarihi şu şekilde giriniz: Gün-Ay-Yıl (örnek: 28-04-2025)", 0);
                 }
                 catch (Exception ex)
                 {
@@ -447,9 +445,9 @@ namespace MHRS_OtomatikRandevu
             {
                 if (TOKEN_END_DATE == default || TOKEN_END_DATE < DateTime.Now)
                 {
-                    Console.WriteLine("Token süresi doldu veya geçersiz, yenileniyor...");
-                    var tokenData = GetToken(_client);
-                    if (tokenData == null || string.IsNullOrEmpty(tokenData.Token))
+                    Console.WriteLine("Oturum süresi sona erdi. Giriş bilgileri yenileniyor...");
+                    var tokenData = await GetToken(_client);
+                    if (tokenData is null || string.IsNullOrEmpty(tokenData.Token))
                     {
                         ConsoleUtil.WriteText("Yeniden giriş yapılırken bir hata meydana geldi! Token alınamadı.", 2000);
                         return;
@@ -472,11 +470,11 @@ namespace MHRS_OtomatikRandevu
                     BitisZamani = endDate
                 };
 
-                Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Randevu slotları aranıyor...");
-                var slot = GetSlot(_client, slotRequestModel);
-                if (slot == null)
+                Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Uygun randevular kontrol ediliyor...");
+                var slot = await GetSlot(_client, slotRequestModel);
+                if (slot is null)
                 {
-                    Console.WriteLine($"Uygun randevu bulunamadı. 5 dakika sonra tekrar denenecek.");
+                    Console.WriteLine("Şu anda uygun bir randevu bulunamadı. 5 dakika sonra tekrar kontrol edilecek.");
                     Thread.Sleep(TimeSpan.FromMinutes(5));
                     continue;
                 }
@@ -490,13 +488,13 @@ namespace MHRS_OtomatikRandevu
                     BitisZamani = slot.BitisZamani
                 };
 
-                Console.WriteLine($"Randevu bulundu - Tarih: {slot.BaslangicZamani}");
-                Console.WriteLine("Randevu alınmaya çalışılıyor...");
-                appointmentState = MakeAppointment(_client, appointmentRequestModel, sendNotification: true);
+                Console.WriteLine($"Müsait randevu bulundu! Tarih: {slot.BaslangicZamani}");
+                Console.WriteLine("Randevu alınıyor...");
+                appointmentState = await MakeAppointment(_client, appointmentRequestModel, sendNotification: true);
 
                 if (!appointmentState)
                 {
-                    Console.WriteLine("Randevu alınamadı. 1 dakika sonra tekrar denenecek.");
+                    Console.WriteLine("Randevu alma işlemi başarısız oldu. 1 dakika içinde tekrar denenecek.");
                     Thread.Sleep(TimeSpan.FromMinutes(1));
                 }
 
@@ -507,83 +505,46 @@ namespace MHRS_OtomatikRandevu
             Console.ReadKey();
         }
 
-        static JwtTokenModel GetToken(IClientService client)
+        static async Task<JwtTokenModel> GetToken(IClientService client)
         {
-            var rawPath = string.Empty;
-            var tokenFilePath = string.Empty;
+            var loginRequestModel = new LoginRequestModel
+            {
+                KullaniciAdi = TC_NO,
+                Parola = SIFRE
+            };
+
             try
             {
-                rawPath = AppDomain.CurrentDomain.BaseDirectory;
-                tokenFilePath = Path.Combine(rawPath, TOKEN_FILE_NAME);
-
-                if (!File.Exists(tokenFilePath)) throw new FileNotFoundException("Token dosyası bulunamadı.");
-
-                var tokenData = File.ReadAllText(tokenFilePath);
-                var expirationDate = JwtTokenUtil.GetTokenExpireTime(tokenData);
-
-                if (string.IsNullOrEmpty(tokenData) || expirationDate < DateTime.Now)
+                var loginResponse = await client.PostAsync<LoginResponseModel>(MHRSUrls.BaseUrl, MHRSUrls.Login, loginRequestModel);
+                if (loginResponse is null || loginResponse.Data is null || string.IsNullOrEmpty(loginResponse.Data.Jwt))
                 {
-                    Console.WriteLine("Dosyadaki token geçersiz veya süresi dolmuş.");
-                    throw new Exception("Token expired or invalid.");
+                    ConsoleUtil.WriteText("Giriş başarısız! TC Kimlik numaranızı ve şifrenizi kontrol ederek tekrar deneyin.", 2000);
+                    return null; // Token alınamadı
                 }
 
-                Console.WriteLine("Token dosyadan başarıyla okundu.");
-                return new() { Token = tokenData, Expiration = expirationDate };
+                Console.WriteLine("Giriş başarılı, yeni token alındı.");
+                return new() { Token = loginResponse.Data.Jwt, Expiration = JwtTokenUtil.GetTokenExpireTime(loginResponse.Data.Jwt) };
             }
-            catch (Exception ex)
+            catch (AggregateException aggrEx)
             {
-                Console.WriteLine($"Token dosyasından okunamadı veya geçersiz ({ex.Message}). Yeni token için giriş yapılıyor...");
-                var loginRequestModel = new LoginRequestModel
-                {
-                    KullaniciAdi = TC_NO,
-                    Parola = SIFRE
-                };
-
-                try
-                {
-                    var loginResponse = client.Post<LoginResponseModel>(MHRSUrls.BaseUrl, MHRSUrls.Login, loginRequestModel).Result;
-
-                    // FIX: .Info özelliği yok. Yanıtın veya Data'nın null olup olmadığını kontrol et.
-                    if (loginResponse == null || loginResponse.Data == null || string.IsNullOrEmpty(loginResponse.Data.Jwt))
-                    {
-                        ConsoleUtil.WriteText($"Giriş yapılırken bir hata meydana geldi veya geçersiz yanıt alındı.", 2000);
-                        return null; // Token alınamadı
-                    }
-
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(tokenFilePath))
-                            File.WriteAllText(tokenFilePath, loginResponse.Data.Jwt);
-                    }
-                    catch (Exception writeEx)
-                    {
-                        Console.WriteLine($"Token dosyaya yazılamadı: {writeEx.Message}");
-                    }
-
-                    Console.WriteLine("Giriş başarılı, yeni token alındı.");
-                    return new() { Token = loginResponse.Data.Jwt, Expiration = JwtTokenUtil.GetTokenExpireTime(loginResponse.Data.Jwt) };
-                }
-                catch (AggregateException aggrEx)
-                {
-                    ConsoleUtil.WriteText($"Giriş sırasında ağ hatası veya başka bir hata: {aggrEx.InnerException?.Message ?? aggrEx.Message}", 3000);
-                    return null;
-                }
-                catch (Exception loginEx)
-                {
-                    ConsoleUtil.WriteText($"Giriş sırasında beklenmedik hata: {loginEx.Message}", 3000);
-                    return null;
-                }
+                ConsoleUtil.WriteText($"Giriş sırasında ağ hatası veya başka bir hata: {aggrEx.InnerException?.Message ?? aggrEx.Message}", 3000);
+                return null;
+            }
+            catch (Exception loginEx)
+            {
+                ConsoleUtil.WriteText($"Giriş sırasında beklenmedik hata: {loginEx.Message}", 3000);
+                return null;
             }
         }
 
-        static SubSlot GetSlot(IClientService client, SlotRequestModel slotRequestModel)
+        static async Task<SubSlot> GetSlot(IClientService client, SlotRequestModel slotRequestModel)
         {
             try
             {
-                var slotListResponse = client.Post<List<SlotResponseModel>>(MHRSUrls.BaseUrl, MHRSUrls.GetSlots, slotRequestModel).Result;
+                var slotListResponse = await client.PostAsync<List<SlotResponseModel>>(MHRSUrls.BaseUrl, MHRSUrls.GetSlots, slotRequestModel);
 
                 // FIX: .Info özelliği yok. Yanıtın veya Data'nın null olup olmadığını kontrol et.
-                if (slotListResponse == null || slotListResponse.Data == null)
+                if (slotListResponse is null || slotListResponse.Data is null)
                 {
                     Console.WriteLine($"Slot bilgisi alınamadı veya geçersiz yanıt alındı.");
                     return null;
@@ -626,11 +587,11 @@ namespace MHRS_OtomatikRandevu
             }
         }
 
-        static bool MakeAppointment(IClientService client, AppointmentRequestModel appointmentRequestModel, bool sendNotification)
+        static async Task<bool> MakeAppointment(IClientService client, AppointmentRequestModel appointmentRequestModel, bool sendNotification)
         {
             try
             {
-                var randevuResp = client.PostSimple(MHRSUrls.BaseUrl, MHRSUrls.MakeAppointment, appointmentRequestModel);
+                var randevuResp = await client.PostSimpleAsync(MHRSUrls.BaseUrl, MHRSUrls.MakeAppointment, appointmentRequestModel);
 
                 if (randevuResp.StatusCode != HttpStatusCode.OK)
                 {
@@ -638,21 +599,8 @@ namespace MHRS_OtomatikRandevu
                     return false;
                 }
 
-                var message = $"Randevu başarıyla alındı! \nTarih: {appointmentRequestModel.BaslangicZamani}";
+                var message = $"✅ Randevunuz başarıyla alındı!\nTarih: {appointmentRequestModel.BaslangicZamani}\nMHRS sistemine giriş yaparak detayları görüntüleyebilirsiniz.";
                 Console.WriteLine(message);
-
-                if (sendNotification)
-                {
-                    try
-                    {
-                        Task.Run(() => _notificationService.SendNotification(message)).Wait();
-                    }
-                    catch (Exception notifyEx)
-                    {
-                        Console.WriteLine($"Bildirim gönderilirken hata oluştu: {notifyEx.Message}");
-                    }
-                }
-
                 return true;
             }
             catch (AggregateException aggrEx)
