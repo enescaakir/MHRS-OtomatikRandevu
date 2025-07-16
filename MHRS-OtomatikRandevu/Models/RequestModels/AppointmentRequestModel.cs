@@ -23,6 +23,6 @@ namespace MHRS_OtomatikRandevu.Models.RequestModels
         public string BitisZamani { get; set; }
 
         [JsonPropertyName("randevuNotu")]
-        public string RandevuNotu { get;} = "";
+        public string RandevuNotu { get; } = "";
     }
 }

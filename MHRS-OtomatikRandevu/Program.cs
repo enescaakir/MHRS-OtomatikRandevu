@@ -14,7 +14,6 @@ namespace MHRS_OtomatikRandevu
         static string TC_NO;
         static string SIFRE;
 
-        const string TOKEN_FILE_NAME = "token.txt";
         static string JWT_TOKEN;
         static DateTime TOKEN_END_DATE;
 
@@ -490,7 +489,7 @@ namespace MHRS_OtomatikRandevu
 
                 Console.WriteLine($"Müsait randevu bulundu! Tarih: {slot.BaslangicZamani}");
                 Console.WriteLine("Randevu alınıyor...");
-                appointmentState = await MakeAppointment(_client, appointmentRequestModel, sendNotification: true);
+                appointmentState = await MakeAppointment(_client, appointmentRequestModel);
 
                 if (!appointmentState)
                 {
@@ -587,7 +586,7 @@ namespace MHRS_OtomatikRandevu
             }
         }
 
-        static async Task<bool> MakeAppointment(IClientService client, AppointmentRequestModel appointmentRequestModel, bool sendNotification)
+        static async Task<bool> MakeAppointment(IClientService client, AppointmentRequestModel appointmentRequestModel)
         {
             try
             {
